@@ -528,16 +528,8 @@ extern DECLSPEC void *SDLCALL SDL_memset(SDL_OUT_BYTECAP(len) void *dst, int c, 
 /* Note that memset() is a byte assignment and this is a 32-bit assignment, so they're not directly equivalent. */
 SDL_FORCE_INLINE void SDL_memset4(void *dst, Uint32 val, size_t dwords)
 {
-#ifdef __APPLE__
-    /* memset_pattern4(dst, &val, dwords * 4); */
-    /* memset_pattern4 fix: https://github.com/libsdl-org/SDL/issues/3657 */
-    Uint32 *dst32 = (Uint32*) dst;
-    Uint32 value = static_cast<Uint32>(val);
-    size_t i;
-    for (i = 0; i < dwords * 4; i++)
-    {
-        *dst32++ = value;
-    }
+#if defined(__APPLE__) && defined(HAVE_STRING_H)
+    memset_pattern4(dst, &val, dwords * 4);
 #elif defined(__GNUC__) && defined(__i386__)
     int u0, u1, u2;
     __asm__ __volatile__ (
